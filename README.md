@@ -9,6 +9,7 @@ A small C++17 Information Retrieval project that turns plain text documents into
 - Counting term frequency inside each document
 - Building a term-document incidence matrix
 - Building an inverted index with postings lists
+- Implementing postings lists with a custom linked list
 - Sorting terms and document IDs through ordered containers
 - Combining postings with intersection and union operations
 - Processing `AND`, `OR`, and `NOT` Boolean queries
@@ -39,6 +40,7 @@ The project uses simple standard library structures so that each part is easy to
 | `map<int, int>` | Stores document IDs and term frequencies |
 | `vector<vector<int>>` | Represents the incidence matrix |
 | `set<int>` | Makes Boolean result operations and duplicate removal clear |
+| `PostingList` | Custom linked list for document IDs and frequencies |
 
 ## Example index
 
@@ -113,4 +115,3 @@ This implementation intentionally keeps the algorithms readable. It is a study p
 ## License
 
 This project is available for educational use.
-
