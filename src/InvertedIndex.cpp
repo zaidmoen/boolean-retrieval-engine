@@ -1,28 +1,29 @@
 #include "InvertedIndex.h"
 
+using namespace std;
+
 void InvertedIndex::addDocument(int documentId,
-                                const std::vector<std::string>& terms) {
-    // The map keeps terms sorted, which makes the output easier to read.
+                                const vector<string>& terms) {
+    // The map keeps terms sorted, and the list keeps document IDs in order.
     for (const auto& term : terms) {
-        index[term][documentId]++;
+        index[term].add(documentId);
     }
 }
 
-const PostingList* InvertedIndex::find(const std::string& term) const {
+const PostingList* InvertedIndex::find(const string& term) const {
     const auto iterator = index.find(term);
     return iterator == index.end() ? nullptr : &iterator->second;
 }
 
-const std::map<std::string, PostingList>& InvertedIndex::entries() const {
+const map<string, PostingList>& InvertedIndex::entries() const {
     return index;
 }
 
-std::vector<std::string> InvertedIndex::terms() const {
-    std::vector<std::string> result;
-    for (const auto& [term, postings] : index) {
-        (void)postings;
+vector<string> InvertedIndex::terms() const {
+    vector<string> result;
+    for (const auto& entry : index) {
+        const string& term = entry.first;
         result.push_back(term);
     }
     return result;
 }
-
