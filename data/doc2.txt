@@ -1,0 +1,3 @@
+Boolean retrieval uses terms and operators such as AND, OR, and NOT.
+An inverted index stores document ids for every term.
+
