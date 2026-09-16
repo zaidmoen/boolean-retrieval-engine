@@ -5,58 +5,60 @@
 #include <sstream>
 #include <vector>
 
+using namespace std;
+
 BooleanQuery::BooleanQuery(const InvertedIndex& index, int documentCount)
     : index(index), documentCount(documentCount) {}
 
-std::vector<std::string> BooleanQuery::split(const std::string& query) {
-    std::istringstream stream(query);
-    std::vector<std::string> tokens;
-    std::string token;
+vector<string> BooleanQuery::split(const string& query) {
+    istringstream stream(query);
+    vector<string> tokens;
+    string token;
 
     while (stream >> token) {
         for (char& character : token) {
-            character = static_cast<char>(std::toupper(static_cast<unsigned char>(character)));
+            character = static_cast<char>(toupper(static_cast<unsigned char>(character)));
         }
         tokens.push_back(token);
     }
     return tokens;
 }
 
-std::set<int> BooleanQuery::allDocuments() const {
-    std::set<int> result;
+set<int> BooleanQuery::allDocuments() const {
+    set<int> result;
     for (int id = 1; id <= documentCount; ++id) {
         result.insert(id);
     }
     return result;
 }
 
-std::set<int> BooleanQuery::documentsForTerm(const std::string& term) const {
-    std::string normalized = term;
-    std::transform(normalized.begin(), normalized.end(), normalized.begin(),
+set<int> BooleanQuery::documentsForTerm(const string& term) const {
+    string normalized = term;
+    transform(normalized.begin(), normalized.end(), normalized.begin(),
                    [](unsigned char character) {
-                       return static_cast<char>(std::tolower(character));
+                       return static_cast<char>(tolower(character));
                    });
 
-    std::set<int> result;
+    set<int> result;
     const PostingList* postings = index.find(normalized);
     if (postings == nullptr) {
         return result;
     }
 
-    for (const auto& [documentId, frequency] : *postings) {
-        (void)frequency;
-        result.insert(documentId);
+    for (const PostingList::Node* current = postings->head(); current != nullptr;
+         current = current->next) {
+        result.insert(current->value.documentId);
     }
     return result;
 }
 
-std::set<int> BooleanQuery::evaluate(const std::string& query) const {
+set<int> BooleanQuery::evaluate(const string& query) const {
     const auto tokens = split(query);
     if (tokens.empty()) {
         return {};
     }
 
-    std::size_t position = 0;
+    size_t position = 0;
     auto readOperand = [&]() {
         bool negated = false;
         if (position < tokens.size() && tokens[position] == "NOT") {
@@ -65,12 +67,12 @@ std::set<int> BooleanQuery::evaluate(const std::string& query) const {
         }
 
         if (position >= tokens.size()) {
-            return std::set<int>{};
+            return set<int>{};
         }
 
-        std::set<int> operand = documentsForTerm(tokens[position++]);
+        set<int> operand = documentsForTerm(tokens[position++]);
         if (negated) {
-            std::set<int> complement = allDocuments();
+            set<int> complement = allDocuments();
             for (int id : operand) {
                 complement.erase(id);
             }
@@ -79,19 +81,19 @@ std::set<int> BooleanQuery::evaluate(const std::string& query) const {
         return operand;
     };
 
-    std::set<int> result = readOperand();
+    set<int> result = readOperand();
     while (position < tokens.size()) {
-        const std::string operation = tokens[position++];
+        const string operation = tokens[position++];
         if (operation != "AND" && operation != "OR") {
             continue;
         }
 
-        const std::set<int> current = readOperand();
+        const set<int> current = readOperand();
         if (operation == "AND") {
-            std::set<int> intersection;
-            std::set_intersection(result.begin(), result.end(), current.begin(),
+            set<int> intersection;
+            set_intersection(result.begin(), result.end(), current.begin(),
                                   current.end(),
-                                  std::inserter(intersection, intersection.begin()));
+                                  inserter(intersection, intersection.begin()));
             result = intersection;
         } else {
             result.insert(current.begin(), current.end());
