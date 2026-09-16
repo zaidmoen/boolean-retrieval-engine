@@ -4,17 +4,18 @@
 #include <string>
 #include <vector>
 
-using PostingList = std::map<int, int>;
+#include "LinkedList.h"
+
+using namespace std;
 
 class InvertedIndex {
 public:
-    void addDocument(int documentId, const std::vector<std::string>& terms);
+    void addDocument(int documentId, const vector<string>& terms);
 
-    const PostingList* find(const std::string& term) const;
-    const std::map<std::string, PostingList>& entries() const;
-    std::vector<std::string> terms() const;
+    const PostingList* find(const string& term) const;
+    const map<string, PostingList>& entries() const;
+    vector<string> terms() const;
 
 private:
-    std::map<std::string, PostingList> index;
+    map<string, PostingList> index;
 };
-
