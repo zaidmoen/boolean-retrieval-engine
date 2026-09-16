@@ -11,6 +11,7 @@ add_executable(boolean_retrieval_engine
     src/DocumentReader.cpp
     src/IncidenceMatrix.cpp
     src/InvertedIndex.cpp
+    src/LinkedList.cpp
     src/TextProcessor.cpp
 )
 
@@ -21,4 +22,3 @@ if (MSVC)
 else()
     target_compile_options(boolean_retrieval_engine PRIVATE -Wall -Wextra -Wpedantic)
 endif()
-
