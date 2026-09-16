@@ -3,17 +3,18 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 struct Document {
     int id;
-    std::string name;
-    std::string content;
+    string name;
+    string content;
 };
 
 class DocumentReader {
 public:
-    std::vector<Document> readDirectory(const std::string& directoryPath) const;
+    vector<Document> readDirectory(const string& directoryPath) const;
 
 private:
-    static std::string readFile(const std::string& filePath);
+    static string readFile(const string& filePath);
 };
-
