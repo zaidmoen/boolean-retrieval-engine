@@ -1,0 +1,3 @@
+Data structures help us organize text documents.
+Sorting and merging are common steps when building an index.
+
