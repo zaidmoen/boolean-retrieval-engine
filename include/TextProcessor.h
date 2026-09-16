@@ -3,8 +3,9 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 class TextProcessor {
 public:
-    std::vector<std::string> tokenize(const std::string& text) const;
+    vector<string> tokenize(const string& text) const;
 };
-
