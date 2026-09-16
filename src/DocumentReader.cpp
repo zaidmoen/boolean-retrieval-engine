@@ -5,24 +5,24 @@
 #include <fstream>
 #include <stdexcept>
 
-namespace fs = std::filesystem;
+using namespace std;
+namespace fs = filesystem;
 
-std::string DocumentReader::readFile(const std::string& filePath) {
-    std::ifstream file(filePath);
+string DocumentReader::readFile(const string& filePath) {
+    ifstream file(filePath);
     if (!file) {
-        throw std::runtime_error("Could not open file: " + filePath);
+        throw runtime_error("Could not open file: " + filePath);
     }
 
-    return std::string((std::istreambuf_iterator<char>(file)),
-                       std::istreambuf_iterator<char>());
+    return string((istreambuf_iterator<char>(file)),
+                  istreambuf_iterator<char>());
 }
 
-std::vector<Document> DocumentReader::readDirectory(
-    const std::string& directoryPath) const {
-    std::vector<fs::path> paths;
+vector<Document> DocumentReader::readDirectory(const string& directoryPath) const {
+    vector<fs::path> paths;
 
     if (!fs::exists(directoryPath) || !fs::is_directory(directoryPath)) {
-        throw std::runtime_error("Data directory does not exist: " + directoryPath);
+        throw runtime_error("Data directory does not exist: " + directoryPath);
     }
 
     for (const auto& entry : fs::directory_iterator(directoryPath)) {
@@ -31,9 +31,9 @@ std::vector<Document> DocumentReader::readDirectory(
         }
     }
 
-    std::sort(paths.begin(), paths.end());
+    sort(paths.begin(), paths.end());
 
-    std::vector<Document> documents;
+    vector<Document> documents;
     int id = 1;
     for (const auto& path : paths) {
         documents.push_back({id++, path.filename().string(), readFile(path.string())});
@@ -41,4 +41,3 @@ std::vector<Document> DocumentReader::readDirectory(
 
     return documents;
 }
-
