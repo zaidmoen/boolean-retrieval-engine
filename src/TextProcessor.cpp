@@ -2,13 +2,15 @@
 
 #include <cctype>
 
-std::vector<std::string> TextProcessor::tokenize(const std::string& text) const {
-    std::vector<std::string> tokens;
-    std::string current;
+using namespace std;
+
+vector<string> TextProcessor::tokenize(const string& text) const {
+    vector<string> tokens;
+    string current;
 
     for (unsigned char character : text) {
-        if (std::isalnum(character)) {
-            current += static_cast<char>(std::tolower(character));
+        if (isalnum(character)) {
+            current += static_cast<char>(tolower(character));
         } else if (!current.empty()) {
             tokens.push_back(current);
             current.clear();
@@ -21,4 +23,3 @@ std::vector<std::string> TextProcessor::tokenize(const std::string& text) const 
 
     return tokens;
 }
-
