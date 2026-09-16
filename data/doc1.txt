@@ -1,0 +1,3 @@
+Information retrieval finds useful documents from a collection.
+An index makes search faster.
+
