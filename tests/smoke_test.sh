@@ -15,4 +15,7 @@ group_output=$(printf '(index OR data) AND documents\nexit\n' | ./boolean_retrie
 grep -q 'D1 (doc1.txt)' <<< "$group_output"
 grep -q 'D3 (doc3.txt)' <<< "$group_output"
 
+not_output=$(printf 'NOT (index OR data)\nexit\n' | ./boolean_retrieval_engine)
+grep -q 'D2 (doc2.txt)' <<< "$not_output"
+
 echo "Smoke test passed."
