@@ -4,6 +4,7 @@
 #include "InvertedIndex.h"
 #include "TextProcessor.h"
 
+#include <chrono>
 #include <iostream>
 #include <string>
 
@@ -74,7 +75,15 @@ int main(int argc, char* argv[]) {
         string query;
         while (cout << "> " && getline(cin, query) && query != "exit") {
             try {
-                printResults(queryEngine.evaluate(query), documents);
+                const auto start = chrono::steady_clock::now();
+                const set<int> result = queryEngine.evaluate(query);
+                const auto end = chrono::steady_clock::now();
+
+                printResults(result, documents);
+
+                const auto microseconds =
+                    chrono::duration_cast<chrono::microseconds>(end - start);
+                cout << "Query time: " << microseconds.count() << " us\n";
             } catch (const invalid_argument& error) {
                 cout << "Invalid query: " << error.what() << '\n';
             }
