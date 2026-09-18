@@ -11,16 +11,32 @@ BooleanQuery::BooleanQuery(const InvertedIndex& index, int documentCount)
     : index(index), documentCount(documentCount) {}
 
 vector<string> BooleanQuery::split(const string& query) {
-    istringstream stream(query);
     vector<string> tokens;
     string token;
 
-    while (stream >> token) {
+    auto saveToken = [&]() {
+        if (token.empty()) {
+            return;
+        }
         for (char& character : token) {
             character = static_cast<char>(toupper(static_cast<unsigned char>(character)));
         }
         tokens.push_back(token);
+        token.clear();
+    };
+
+    for (char character : query) {
+        if (isspace(static_cast<unsigned char>(character))) {
+            saveToken();
+        } else if (character == '(' || character == ')') {
+            saveToken();
+            tokens.push_back(string(1, character));
+        } else {
+            token += character;
+        }
     }
+    saveToken();
+
     return tokens;
 }
 
@@ -35,9 +51,9 @@ set<int> BooleanQuery::allDocuments() const {
 set<int> BooleanQuery::documentsForTerm(const string& term) const {
     string normalized = term;
     transform(normalized.begin(), normalized.end(), normalized.begin(),
-                   [](unsigned char character) {
-                       return static_cast<char>(tolower(character));
-                   });
+              [](unsigned char character) {
+                  return static_cast<char>(tolower(character));
+              });
 
     set<int> result;
     const PostingList* postings = index.find(normalized);
@@ -92,8 +108,8 @@ set<int> BooleanQuery::evaluate(const string& query) const {
         if (operation == "AND") {
             set<int> intersection;
             set_intersection(result.begin(), result.end(), current.begin(),
-                                  current.end(),
-                                  inserter(intersection, intersection.begin()));
+                             current.end(),
+                             inserter(intersection, intersection.begin()));
             result = intersection;
         } else {
             result.insert(current.begin(), current.end());
