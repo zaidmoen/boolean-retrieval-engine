@@ -23,4 +23,8 @@ grep -q 'Invalid query:' <<< "$recovery_output"
 grep -q 'D1 (doc1.txt)' <<< "$recovery_output"
 grep -q 'D2 (doc2.txt)' <<< "$recovery_output"
 
+case_output=$(printf 'InDeX aNd ReTrIeVaL\nexit\n' | ./boolean_retrieval_engine)
+grep -q 'D1 (doc1.txt)' <<< "$case_output"
+grep -q 'D2 (doc2.txt)' <<< "$case_output"
+
 echo "Smoke test passed."
