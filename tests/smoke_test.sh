@@ -18,4 +18,9 @@ grep -q 'D3 (doc3.txt)' <<< "$group_output"
 not_output=$(printf 'NOT (index OR data)\nexit\n' | ./boolean_retrieval_engine)
 grep -q 'D2 (doc2.txt)' <<< "$not_output"
 
+recovery_output=$(printf 'index AND\nretrieval\nexit\n' | ./boolean_retrieval_engine)
+grep -q 'Invalid query:' <<< "$recovery_output"
+grep -q 'D1 (doc1.txt)' <<< "$recovery_output"
+grep -q 'D2 (doc2.txt)' <<< "$recovery_output"
+
 echo "Smoke test passed."
