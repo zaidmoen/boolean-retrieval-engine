@@ -146,7 +146,11 @@ set<int> BooleanQuery::evaluate(const string& query) const {
         while (position < tokens.size() && tokens[position] == "OR") {
             ++position;
             const set<int> right = readAnd();
-            result.insert(right.begin(), right.end());
+            set<int> combined;
+            set_union(result.begin(), result.end(),
+                      right.begin(), right.end(),
+                      inserter(combined, combined.begin()));
+            result = combined;
         }
         return result;
     };
