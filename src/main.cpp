@@ -73,7 +73,11 @@ int main(int argc, char* argv[]) {
 
         string query;
         while (cout << "> " && getline(cin, query) && query != "exit") {
-            printResults(queryEngine.evaluate(query), documents);
+            try {
+                printResults(queryEngine.evaluate(query), documents);
+            } catch (const invalid_argument& error) {
+                cout << "Invalid query: " << error.what() << '\n';
+            }
         }
     } catch (const exception& error) {
         cerr << "Error: " << error.what() << '\n';
