@@ -2,7 +2,8 @@
 
 #include <algorithm>
 #include <cctype>
-#include <sstream>
+#include <functional>
+#include <stdexcept>
 #include <vector>
 
 using namespace std;
@@ -69,52 +70,80 @@ set<int> BooleanQuery::documentsForTerm(const string& term) const {
 }
 
 set<int> BooleanQuery::evaluate(const string& query) const {
-    const auto tokens = split(query);
+    const vector<string> tokens = split(query);
     if (tokens.empty()) {
         return {};
     }
 
     size_t position = 0;
-    auto readOperand = [&]() {
-        bool negated = false;
-        if (position < tokens.size() && tokens[position] == "NOT") {
-            negated = true;
-            ++position;
-        }
+    function<set<int>()> readOr;
+    function<set<int>()> readAnd;
+    function<set<int>()> readNot;
+    function<set<int>()> readPrimary;
 
+    readPrimary = [&]() {
         if (position >= tokens.size()) {
-            return set<int>{};
+            throw invalid_argument("Missing term at the end of the query.");
         }
 
-        set<int> operand = documentsForTerm(tokens[position++]);
-        if (negated) {
-            set<int> complement = allDocuments();
-            for (int id : operand) {
-                complement.erase(id);
+        if (tokens[position] == "(") {
+            ++position;
+            set<int> result = readOr();
+            if (position >= tokens.size() || tokens[position] != ")") {
+                throw invalid_argument("Missing closing parenthesis.");
             }
-            return complement;
+            ++position;
+            return result;
         }
-        return operand;
+
+        if (tokens[position] == ")" || tokens[position] == "AND" ||
+            tokens[position] == "OR") {
+            throw invalid_argument("Expected a search term.");
+        }
+
+        return documentsForTerm(tokens[position++]);
     };
 
-    set<int> result = readOperand();
-    while (position < tokens.size()) {
-        const string operation = tokens[position++];
-        if (operation != "AND" && operation != "OR") {
-            continue;
+    readNot = [&]() {
+        if (position < tokens.size() && tokens[position] == "NOT") {
+            ++position;
+            set<int> result = allDocuments();
+            const set<int> excluded = readNot();
+            for (int id : excluded) {
+                result.erase(id);
+            }
+            return result;
         }
+        return readPrimary();
+    };
 
-        const set<int> current = readOperand();
-        if (operation == "AND") {
+    readAnd = [&]() {
+        set<int> result = readNot();
+        while (position < tokens.size() && tokens[position] == "AND") {
+            ++position;
+            const set<int> right = readNot();
             set<int> intersection;
-            set_intersection(result.begin(), result.end(), current.begin(),
-                             current.end(),
+            set_intersection(result.begin(), result.end(),
+                             right.begin(), right.end(),
                              inserter(intersection, intersection.begin()));
             result = intersection;
-        } else {
-            result.insert(current.begin(), current.end());
         }
-    }
+        return result;
+    };
 
+    readOr = [&]() {
+        set<int> result = readAnd();
+        while (position < tokens.size() && tokens[position] == "OR") {
+            ++position;
+            const set<int> right = readAnd();
+            result.insert(right.begin(), right.end());
+        }
+        return result;
+    };
+
+    set<int> result = readOr();
+    if (position != tokens.size()) {
+        throw invalid_argument("Unexpected token: " + tokens[position]);
+    }
     return result;
 }
