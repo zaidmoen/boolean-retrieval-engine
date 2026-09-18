@@ -6,6 +6,9 @@ The program follows a simple pipeline so every Information Retrieval step can be
 2. `TextProcessor` converts text into lowercase tokens.
 3. `InvertedIndex` stores each term and points to a custom linked list of document IDs and frequencies.
 4. `IncidenceMatrix` converts the index into a 0/1 term-document table.
-5. `BooleanQuery` combines document sets with `AND`, `OR`, and `NOT`.
+5. `BooleanQuery` tokenizes the query and applies operator precedence.
+6. The query engine combines document sets with `AND`, `OR`, and `NOT`.
 
 The index is the main searchable structure. The matrix is also built because it makes the basic Boolean Retrieval model easier to see.
+
+The query parser is kept separate from document indexing. This makes it possible to improve query rules without changing how documents are stored.

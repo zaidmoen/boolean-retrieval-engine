@@ -14,6 +14,17 @@ A small C++17 Information Retrieval project that turns plain text documents into
 - Combining postings with intersection and union operations
 - Processing `AND`, `OR`, and `NOT` Boolean queries
 
+## Query engine features
+
+The query engine includes:
+
+- standard `NOT`, `AND`, `OR` precedence
+- grouped expressions with parentheses
+- clear validation for incomplete or malformed queries
+- cached term results for repeated lookups
+- sorted set merging for Boolean operations
+- query execution time in microseconds
+
 ## How the data flows
 
 ```mermaid
@@ -91,6 +102,8 @@ After the index and matrix are printed, enter queries such as:
 index AND search
 boolean OR retrieval
 NOT sorting
+(index OR data) AND documents
+NOT (index OR data)
 ```
 
 Type `exit` to close the program.

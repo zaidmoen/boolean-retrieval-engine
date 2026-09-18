@@ -2,6 +2,7 @@
 
 #include "InvertedIndex.h"
 
+#include <map>
 #include <set>
 #include <string>
 
@@ -19,4 +20,5 @@ private:
 
     const InvertedIndex& index;
     int documentCount;
+    mutable map<string, set<int>> termCache;
 };
