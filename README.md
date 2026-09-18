@@ -14,6 +14,16 @@ A small C++17 Information Retrieval project that turns plain text documents into
 - Combining postings with intersection and union operations
 - Processing `AND`, `OR`, and `NOT` Boolean queries
 
+## Improvement goals
+
+The query engine is being extended in small, testable steps:
+
+- respect the standard `NOT`, `AND`, `OR` precedence
+- support grouped expressions with parentheses
+- reject incomplete or malformed queries clearly
+- avoid repeating term-list conversions across queries
+- report query execution time
+
 ## How the data flows
 
 ```mermaid
