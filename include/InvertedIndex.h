@@ -16,6 +16,11 @@ public:
     const map<string, PostingList>& entries() const;
     vector<string> terms() const;
 
+    size_t documentFrequency(const string& term) const {
+        const PostingList* postings = find(term);
+        return postings == nullptr ? 0 : postings->size();
+    }
+
 private:
     map<string, PostingList> index;
 };
