@@ -72,7 +72,7 @@ set<int> BooleanQuery::documentsForTerm(const string& term) const {
 set<int> BooleanQuery::evaluate(const string& query) const {
     const vector<string> tokens = split(query);
     if (tokens.empty()) {
-        return {};
+        throw invalid_argument("The query is empty.");
     }
 
     size_t position = 0;
@@ -83,14 +83,18 @@ set<int> BooleanQuery::evaluate(const string& query) const {
 
     readPrimary = [&]() {
         if (position >= tokens.size()) {
-            throw invalid_argument("Missing term at the end of the query.");
+            throw invalid_argument("A term or group is required here.");
         }
 
         if (tokens[position] == "(") {
             ++position;
+            if (position < tokens.size() && tokens[position] == ")") {
+                throw invalid_argument("An empty group is not allowed.");
+            }
+
             set<int> result = readOr();
             if (position >= tokens.size() || tokens[position] != ")") {
-                throw invalid_argument("Missing closing parenthesis.");
+                throw invalid_argument("A closing ')' is missing.");
             }
             ++position;
             return result;
@@ -98,7 +102,8 @@ set<int> BooleanQuery::evaluate(const string& query) const {
 
         if (tokens[position] == ")" || tokens[position] == "AND" ||
             tokens[position] == "OR") {
-            throw invalid_argument("Expected a search term.");
+            throw invalid_argument("Expected a term, but found '" +
+                                   tokens[position] + "'.");
         }
 
         return documentsForTerm(tokens[position++]);
@@ -143,7 +148,7 @@ set<int> BooleanQuery::evaluate(const string& query) const {
 
     set<int> result = readOr();
     if (position != tokens.size()) {
-        throw invalid_argument("Unexpected token: " + tokens[position]);
+        throw invalid_argument("Unexpected token '" + tokens[position] + "'.");
     }
     return result;
 }
