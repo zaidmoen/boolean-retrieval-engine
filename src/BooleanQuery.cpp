@@ -56,16 +56,21 @@ set<int> BooleanQuery::documentsForTerm(const string& term) const {
                   return static_cast<char>(tolower(character));
               });
 
-    set<int> result;
-    const PostingList* postings = index.find(normalized);
-    if (postings == nullptr) {
-        return result;
+    const auto cached = termCache.find(normalized);
+    if (cached != termCache.end()) {
+        return cached->second;
     }
 
-    for (const PostingList::Node* current = postings->head(); current != nullptr;
-         current = current->next) {
-        result.insert(current->value.documentId);
+    set<int> result;
+    const PostingList* postings = index.find(normalized);
+    if (postings != nullptr) {
+        for (const PostingList::Node* current = postings->head(); current != nullptr;
+             current = current->next) {
+            result.insert(current->value.documentId);
+        }
     }
+
+    termCache[normalized] = result;
     return result;
 }
 
